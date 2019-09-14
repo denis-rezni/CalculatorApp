@@ -35,46 +35,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getResult(): String {
-        //parsing the expression
-        val text = calcResult.text.replace(Regex(" "), "")
-        var pointer = 0
-        val firstOperand = getNumberString(pointer, text)
-        pointer += firstOperand.length
-        if (pointer >= text.length) {
-            return firstOperand
-        }
-        val sign = text[pointer]
-        pointer++
-        val secondOperand = getNumberString(pointer, text)
-//        return firstOperand + " " + secondOperand
-        return evaluate(firstOperand.toInt().toDouble(), secondOperand.toInt().toDouble(), sign).toString()
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("EXPRESSION", calcResult.text.toString())
+        outState.putSerializable("STATE", state)
+        super.onSaveInstanceState(outState)
     }
 
-    fun getNumberString(pos: Int, text: String): String {
-        //searching for an integer
-        var pointer = pos
-        while (pointer < text.length && text[pointer].isDigit()) {
-            pointer++
-        }
-        return text.substring(pos, pointer)
-    }
-
-    fun evaluate(firstOperand: Double, secondOperand: Double, operation: Char): Double {
-        when (operation) {
-            '+' -> return firstOperand + secondOperand
-            '-' -> return firstOperand - secondOperand
-            '*' -> return firstOperand * secondOperand
-            '/' -> return firstOperand / secondOperand
-        }
-        return 0.0
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        state = savedInstanceState.getSerializable("STATE") as State
+        calcResult.text = savedInstanceState.getString("EXPRESSION")
     }
 
     @SuppressLint("SetTextI18n")
     fun updateLabel(symbol: Char) {
         if (symbol.isDigit()) {
             if (state == State.START || state == State.RESULT) {
-                calcResult.setText(symbol.toString())
+                calcResult.text = symbol.toString()
                 if(symbol != '0'){
                     state = State.FIRST_OPERAND
                 }
@@ -102,5 +79,41 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    fun getResult(): String {
+        //parsing the expression
+        val text = calcResult.text.replace(Regex(" "), "")
+        var pointer = 0
+        val firstOperand = getNumberString(pointer, text)
+        pointer += firstOperand.length
+        if (pointer + 1 >= text.length) {
+            return firstOperand
+        }
+        val sign = text[pointer]
+        pointer++
+        val secondOperand = getNumberString(pointer, text)
+        return evaluate(firstOperand.toLong().toDouble(), secondOperand.toLong().toDouble(), sign).toString()
+    }
+
+    fun getNumberString(pos: Int, text: String): String {
+        //searching for an integer
+
+        var pointer = pos
+        while (pointer < text.length && text[pointer].isDigit()) {
+            pointer++
+        }
+        return text.substring(pos, pointer)
+    }
+
+    fun evaluate(firstOperand: Double, secondOperand: Double, operation: Char): Double {
+        when (operation) {
+            '+' -> return firstOperand + secondOperand
+            '-' -> return firstOperand - secondOperand
+            '*' -> return firstOperand * secondOperand
+            '/' -> return firstOperand / secondOperand
+        }
+        return 0.0
+    }
+
 
 }
