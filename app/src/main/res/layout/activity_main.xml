@@ -28,6 +28,7 @@
                 android:layout_weight="3"
                 android:gravity="center_vertical|end"
                 android:text="@string/result"
+                android:textIsSelectable="true"
                 android:textAlignment="viewEnd"
                 android:textSize="36sp" />
 
