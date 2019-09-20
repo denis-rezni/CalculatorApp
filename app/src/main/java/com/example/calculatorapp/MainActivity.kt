@@ -9,15 +9,15 @@ import kotlin.math.min
 
 class MainActivity : AppCompatActivity() {
     lateinit var buttons: Array<Button>
-    val operations: Set<Char> = setOf('+', '-', '*', '/')
+    private val operations: Set<Char> = setOf('+', '-', '*', '/')
 
     enum class State {
         START, FIRST_OPERAND, SIGN, SECOND_OPERAND, RESULT
     }
 
-    var state = State.START;
+    private var state = State.START
 
-    val lengthBound = 15
+    private val lengthBound = 15
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +52,10 @@ class MainActivity : AppCompatActivity() {
         if (symbol.isDigit()) {
             if (state == State.START || state == State.RESULT) {
                 calcResult.text = symbol.toString()
-                if(symbol != '0'){
+                if (symbol != '0') {
                     state = State.FIRST_OPERAND
+                } else {
+                    state = State.START
                 }
             } else if (calcResult.text.length < lengthBound) {
                 calcResult.append(symbol.toString())
@@ -68,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             if (state == State.SIGN) {
                 calcResult.text = getNumberString(0, calcResult.text.toString()) + " " +
                         symbol + " "
-            } else if (state == State.FIRST_OPERAND) {
+            } else if (state == State.FIRST_OPERAND || state == State.START) {
                 calcResult.append(" $symbol ")
                 state = State.SIGN
             }
@@ -92,7 +94,11 @@ class MainActivity : AppCompatActivity() {
         val sign = text[pointer]
         pointer++
         val secondOperand = getNumberString(pointer, text)
-        return evaluate(firstOperand.toLong().toDouble(), secondOperand.toLong().toDouble(), sign).toString()
+        return evaluate(
+            firstOperand.toLong().toDouble(),
+            secondOperand.toLong().toDouble(),
+            sign
+        ).toString()
     }
 
     fun getNumberString(pos: Int, text: String): String {
